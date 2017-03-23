@@ -1,0 +1,74 @@
+---
+title: "L.A. County Salaries 2015"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    source_code: embed
+---
+
+# Heatmap
+```{r setup, include=FALSE}
+library(knitr)
+library(d3heatmap)
+library(flexdashboard)
+library(magrittr)
+library(ggplot2)
+library(rbokeh) # plots
+
+la_salaries_2015_summary <- read.csv("2015_earnings_medians.csv", row.names = 1)
+la_salaries_2015_summary_benef <- read.csv("2015_benefits_medians.csv", row.names = 1)
+```
+
+### Departments median earnings {data-width=650}
+
+```{r}
+color_blind_palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+d3heatmap(la_salaries_2015_summary, scale = "column", colors = color_blind_palette, dendrogram = "none", xaxis_font_size = 12, labCol = c("Base earnings", "Total earnings", "Total benefits", "Total comp"))
+```
+
+### Table {data-width=350}
+**MBE** = Median Base Earnings **MTE** = Median Total Earnings
+
+**MTB** = Median Total Benefits **MTC** = Median Total Compensation
+
+```{r}
+knitr::kable(la_salaries_2015_summary)
+```
+
+
+
+# Boxplots
+
+Row 
+-----------------------------------------------------------------------
+
+### Earnings
+
+```{r}
+earnings_categ <- list(la_salaries_2015_summary$MBE, la_salaries_2015_summary$MTE, la_salaries_2015_summary$MTC)
+names(earnings_categ) <- c("Base earnings", "Total earnings", "Total compensation")
+boxplot(earnings_categ, las=1,  pars = list(boxwex = 0.4)) # boxwex sets the width of the box
+# las = 1 sets both axes horizontal
+rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = 
+"gray90") # trick to change the background of plotting area, make it look ggplot-ish
+grid(col="white", lty=1) #lty = 1 means solid lines for boxes' borders
+# Actually need to plot twice b/c of background coloring trick. Set add = T to "add" this plot to previous one
+boxplot(earnings_categ, col = color_blind_palette[2], add=T, las=1, lty=1,  pars = list(boxwex = 0.4))
+```
+
+
+### Benefits
+
+```{r}
+benefits_categ <- list(la_salaries_2015_summary_benef$MMed, la_salaries_2015_summary_benef$MPen, la_salaries_2015_summary_benef$MTB)
+names(benefits_categ) <- c("Medical", "Pension", "Total benefits")
+boxplot(benefits_categ, las=1,  pars = list(boxwex = 0.4)) # boxwex sets the width of the box
+# las = 1 sets both axes horizontal
+rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = 
+"gray90") # trick to change the background of plotting area, make it look ggplot-ish
+grid(col="white", lty=1) #lty = 1 means solid lines for boxes' borders
+# Actually need to plot twice b/c of background coloring trick. Set add = T to "add" this plot to previous one
+boxplot(benefits_categ, col = color_blind_palette[2], add=T, las=1, lty=1, pars = list(boxwex = 0.4)) 
+```
+
